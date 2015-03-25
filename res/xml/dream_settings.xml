@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- auto dim -->
+    <CheckBoxPreference
+        android:key="pref_auto_dim"
+        android:title="@string/pref_auto_dim_title"
+        android:summary="@string/pref_auto_dim_summary" />
+
+    <CheckBoxPreference
+        android:key="pref_anim_slide"
+        android:title="@string/pref_anim_slide_title"
+        android:summary="@string/pref_anim_slide_summary" />
+
+    <com.raidzero.dreamclock.SliderPreference
+        android:key="pref_max_opacity"
+        android:title="@string/pref_max_opacity_title"
+        android:summary="@string/pref_max_opacity_summary" />
+
+    <CheckBoxPreference
+        android:key="pref_include_notifications"
+        android:title="@string/pref_include_notifications_title"
+        android:summary="@string/pref_include_notifications_summary" />
+
+</PreferenceScreen>

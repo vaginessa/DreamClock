@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">DreamClock</string>
+
+    <string name="settings_title">Settings</string>
+
+    <string name="battery_status_charged">Charged</string>
+    <string name="battery_status_charging">Charging</string>
+    <string name="battery_status_discharging">Discharging</string>
+    <string name="battery_charge_method_usb">USB</string>
+    <string name="battery_charge_method_ac">AC</string>
+    <string name="battery_charge_method_wireless">Wireless</string>
+
+    <string name="pref_auto_dim_title">Auto-dim</string>
+    <string name="pref_auto_dim_summary">Automatically dim screen based on light sensor</string>
+
+    <string name="pref_anim_slide_title">Slide</string>
+    <string name="pref_anim_slide_summary">Slide clock around instead of fading in/out</string>
+
+    <string name="pref_max_opacity_title">Opacity</string>
+    <string name="pref_max_opacity_summary">100% is completely opaque</string>
+
+    <string name="pref_include_notifications_title">Display notifications</string>
+    <string name="pref_include_notifications_summary">Show android notifications</string>
+
+    <string name="notification_access_dialog_title">Notification Access disabled</string>
+    <string name="notification_access_dialog_message">On the next screen, please enable access for DreamClock, then return here with the back button.</string>
+</resources>

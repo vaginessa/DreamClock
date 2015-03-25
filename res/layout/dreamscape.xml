@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:background="@android:color/black">
+
+    <RelativeLayout
+        android:layout_centerInParent="true"
+        android:id="@+id/clock_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextClock
+            android:id="@+id/clockDisplay"
+            android:layout_centerInParent="true"
+            android:textColor="@android:color/white"
+            android:textSize="85sp"
+            android:fontFamily="sans-serif-light"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:id="@+id/dateDisplay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/clockDisplay">
+
+            <TextView
+                android:textColor="@android:color/white"
+                android:id="@+id/txt_dateDisplay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mon, Mar 16 | Tue 8:00 AM"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/txt_chargingDisplay"
+            android:textColor="@android:color/white"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@id/dateDisplay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Charging (USB), 97%"
+            />
+
+        <LinearLayout
+            android:id="@+id/notificationContainer"
+            android:layout_below="@id/txt_chargingDisplay"
+            android:layout_centerHorizontal="true"
+            android:orientation="horizontal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center">
+        </LinearLayout>
+    </RelativeLayout>
+
+</RelativeLayout>
