@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="notification_size">24dip</dimen>
+    <dimen name="notification_count_size">16sp</dimen>
+    <dimen name="notification_count_overlap">6dip</dimen>
+</resources>

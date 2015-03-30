@@ -74,6 +74,7 @@ public class Dream extends DreamService implements SensorEventListener {
                     || action.equals(Intent.ACTION_TIMEZONE_CHANGED)
                     || action.equals(AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED)) {
                 updateDateDisplay();
+            } else if (action.equals(Intent.ACTION_BATTERY_CHANGED)) {
                 updateBatteryDisplay();
             }
         }
@@ -138,6 +139,7 @@ public class Dream extends DreamService implements SensorEventListener {
         IntentFilter dateTimeFilter = new IntentFilter();
         dateTimeFilter.addAction(Intent.ACTION_TIME_CHANGED);
         dateTimeFilter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
+        dateTimeFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
 
         registerReceiver(mDateTimeReceiver, dateTimeFilter);
 
@@ -259,18 +261,11 @@ public class Dream extends DreamService implements SensorEventListener {
                     int iconId = notification.icon;
                     Drawable icon = pkgContext.getResources().getDrawable(iconId);
 
-                    TextView countView = new TextView(this);
-                    countView.setGravity(Gravity.TOP | Gravity.END);
-                    String countStr = String.valueOf(count);
+                    // make custom view for superscripted icon! :)
+                    NumberedIconView notifIconView = new NumberedIconView(this);
+                    notifIconView.setIconAndCount(icon, count);
 
-                    if (countStr.equals("1")) {
-                        countStr = "";
-                    }
-
-                    countView.setText(countStr);
-                    countView.setCompoundDrawablesWithIntrinsicBounds(icon, null, null, null);
-
-                    mNotificationContainer.addView(countView);
+                    mNotificationContainer.addView(notifIconView);
                 }
             } catch (PackageManager.NameNotFoundException e) {
                 //ignore
@@ -309,7 +304,7 @@ public class Dream extends DreamService implements SensorEventListener {
 
         String dateTxt = date;
 
-        if (!nextAlarm.isEmpty()) {
+        if (nextAlarm != null && !nextAlarm.isEmpty()) {
             dateTxt += " | " + nextAlarm;
         }
 

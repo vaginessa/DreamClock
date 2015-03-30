@@ -201,4 +201,19 @@ public class Utils {
 
         return String.format("%s%s, ", chargeStatus, chargeMethodDisplay) + batteryPercent + "%";
     }
+
+    public static Bitmap getScaledBitmap(Bitmap inputBmp, int viewWidth) {
+        int bWidth = inputBmp.getWidth();
+        int bHeight = inputBmp.getHeight();
+
+        float scale = (float) viewWidth / (float) bWidth;
+
+        Bitmap rtn;
+        try {
+            rtn = Bitmap.createScaledBitmap(inputBmp, viewWidth, (int) (bHeight * scale), true);
+            return rtn;
+        } catch (Exception e) {
+            return inputBmp;
+        }
+    }
 }
