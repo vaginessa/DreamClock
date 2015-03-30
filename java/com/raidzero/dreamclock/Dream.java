@@ -122,13 +122,7 @@ public class Dream extends DreamService implements SensorEventListener {
         updateDateDisplay();
         updateBatteryDisplay();
 
-        Utils.ScreensaverMoveSaverRunnable mMoveSaverRunnable = new Utils.ScreensaverMoveSaverRunnable(mHandler);
-
         mMaxOpacity = (mPrefs.getInt("pref_max_opacity", 100) / 100.0f);
-        boolean slideAnim = mPrefs.getBoolean("pref_anim_slide", false);
-
-        mMoveSaverRunnable.registerViews(mContentView, mSaverView, mMaxOpacity, slideAnim);
-        mHandler.post(mMoveSaverRunnable);
     }
 
     @Override
@@ -159,9 +153,15 @@ public class Dream extends DreamService implements SensorEventListener {
             mNotificationMonitor = NotificationMonitor.getInstance();
             if (mNotificationMonitor != null) {
                 Debug.Log(tag, "Asking for notifications right now");
-                mNotificationMonitor.broadcastNotifications();
+                updateNotifications();
             }
         }
+
+        // create move runnable and post it now that notifications have possibly been displayed
+        Utils.ScreensaverMoveSaverRunnable moveSaverRunnable = new Utils.ScreensaverMoveSaverRunnable(mHandler);
+        boolean slideAnim = mPrefs.getBoolean("pref_anim_slide", false);
+        moveSaverRunnable.registerViews(mContentView, mSaverView, mMaxOpacity, slideAnim);
+        mHandler.post(moveSaverRunnable);
     }
 
     @Override
@@ -305,7 +305,6 @@ public class Dream extends DreamService implements SensorEventListener {
         String nextAlarm = Settings.System.getString(getContentResolver(),
                 Settings.System.NEXT_ALARM_FORMATTED);
 
-        Debug.Log(tag, "nextAlarm: " + nextAlarm);
         if (nextAlarm != null && !nextAlarm.isEmpty()) {
             mAlarmDisplay.setText(nextAlarm);
             mAlarmDisplay.setVisibility(View.VISIBLE);
