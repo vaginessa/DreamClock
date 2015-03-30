@@ -1,2 +1,2 @@
 Android DayDream
-[!Screenshot](/screenshots/dreamclock.png)
+![Screenshot](/screenshots/dreamclock.png?raw=true "Screenshot")
