@@ -47,7 +47,7 @@ public class Dream extends DreamService implements SensorEventListener {
     private WindowManager mWindowManager;
 
     private SharedPreferences mPrefs;
-    private TextView mDateDisplay, mChargeDisplay;
+    private TextView mDateDisplay, mAlarmDisplay, mChargeDisplay;
 
     private View mContentView, mSaverView;
     private LinearLayout mNotificationContainer;
@@ -70,8 +70,7 @@ public class Dream extends DreamService implements SensorEventListener {
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
 
-            if (action.equals(Intent.ACTION_TIME_CHANGED)
-                    || action.equals(Intent.ACTION_TIMEZONE_CHANGED)
+            if (action.equals(Intent.ACTION_TIME_TICK)
                     || action.equals(AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED)) {
                 updateDateDisplay();
             } else if (action.equals(Intent.ACTION_BATTERY_CHANGED)) {
@@ -117,6 +116,7 @@ public class Dream extends DreamService implements SensorEventListener {
         mNotificationContainer = (LinearLayout) findViewById(R.id.notificationContainer);
 
         mDateDisplay = (TextView) findViewById(R.id.txt_dateDisplay);
+        mAlarmDisplay = (TextView) findViewById(R.id.txt_nextAlarmDisplay);
         mChargeDisplay = (TextView)findViewById(R.id.txt_chargingDisplay);
 
         updateDateDisplay();
@@ -137,9 +137,9 @@ public class Dream extends DreamService implements SensorEventListener {
 
         // register date receiver
         IntentFilter dateTimeFilter = new IntentFilter();
-        dateTimeFilter.addAction(Intent.ACTION_TIME_CHANGED);
-        dateTimeFilter.addAction(Intent.ACTION_TIMEZONE_CHANGED);
+        dateTimeFilter.addAction(Intent.ACTION_TIME_TICK);
         dateTimeFilter.addAction(Intent.ACTION_BATTERY_CHANGED);
+        dateTimeFilter.addAction(AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED);
 
         registerReceiver(mDateTimeReceiver, dateTimeFilter);
 
@@ -297,18 +297,21 @@ public class Dream extends DreamService implements SensorEventListener {
     }
 
     private void updateDateDisplay() {
+        // do date
+        String dateTxt = getFormattedDate("EEE, MMM d");
+        mDateDisplay.setText(dateTxt);
+
+        // do alarm
         String nextAlarm = Settings.System.getString(getContentResolver(),
                 Settings.System.NEXT_ALARM_FORMATTED);
 
-        String date = getFormattedDate("EEE, MMM d");
-
-        String dateTxt = date;
-
+        Debug.Log(tag, "nextAlarm: " + nextAlarm);
         if (nextAlarm != null && !nextAlarm.isEmpty()) {
-            dateTxt += " | " + nextAlarm;
+            mAlarmDisplay.setText(nextAlarm);
+            mAlarmDisplay.setVisibility(View.VISIBLE);
+        } else {
+            mAlarmDisplay.setVisibility(View.GONE);
         }
-
-        mDateDisplay.setText(dateTxt);
     }
 
     private void updateBatteryDisplay() {
