@@ -1,4 +1,4 @@
-package com.raidzero.dreamclock;
+package com.raidzero.dreamclock.preferences;
 
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -12,6 +12,8 @@ import android.view.ViewParent;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
+import com.raidzero.dreamclock.R;
 
 /**
  * Created by posborn on 3/24/15.

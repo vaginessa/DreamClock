@@ -1,4 +1,4 @@
-package com.raidzero.dreamclock;
+package com.raidzero.dreamclock.services;
 
 import android.app.AlarmManager;
 import android.app.Notification;
@@ -9,23 +9,20 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.service.dreams.DreamService;
 import android.service.notification.StatusBarNotification;
-import android.util.Log;
-import android.view.Gravity;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.raidzero.dreamclock.global.BrightnessHelper;
+import com.raidzero.dreamclock.global.Debug;
+import com.raidzero.dreamclock.global.NumberedIconView;
+import com.raidzero.dreamclock.R;
+import com.raidzero.dreamclock.global.Utils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -37,14 +34,10 @@ import java.util.Map;
 /**
  * Created by posborn on 3/16/15.
  */
-public class Dream extends DreamService implements SensorEventListener {
+public class Dream extends DreamService {
     private final static String tag = "Dream";
 
     private NotificationMonitor mNotificationMonitor;
-    private SensorManager mSensorManager;
-    private Sensor mLightSensor;
-    private Window mWindow;
-    private WindowManager mWindowManager;
 
     private SharedPreferences mPrefs;
     private TextView mDateDisplay, mAlarmDisplay, mChargeDisplay;
@@ -55,8 +48,7 @@ public class Dream extends DreamService implements SensorEventListener {
 
     private Handler mHandler = new Handler();
 
-    private int[] mLuxLevels, mBrightnessLevels;
-    private int mNumThresholds;
+    private BrightnessHelper mBrightnessHelper;
 
     // receiver for notification updates
     private final BroadcastReceiver mNotificationReceiver = new BroadcastReceiver() {
@@ -110,9 +102,6 @@ public class Dream extends DreamService implements SensorEventListener {
                 | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
         decorView.setSystemUiVisibility(uiOptions);
 
-        mWindow = getWindow();
-        mWindowManager = getWindowManager();
-
         mSaverView = findViewById(R.id.clock_container);
         mContentView = (View) mSaverView.getParent();
 
@@ -132,6 +121,13 @@ public class Dream extends DreamService implements SensorEventListener {
     public void onDreamingStarted() {
         super.onDreamingStarted();
 
+        // set up lux helper if brightness control is enabled
+        if (mPrefs.getBoolean("pref_auto_dim", false)) {
+            // set up lux helper
+            mBrightnessHelper = BrightnessHelper.getInstance();
+            mBrightnessHelper.setUp(this);
+        }
+
         // register date receiver
         IntentFilter dateTimeFilter = new IntentFilter();
         dateTimeFilter.addAction(Intent.ACTION_TIME_TICK);
@@ -139,34 +135,6 @@ public class Dream extends DreamService implements SensorEventListener {
         dateTimeFilter.addAction(AlarmManager.ACTION_NEXT_ALARM_CLOCK_CHANGED);
 
         registerReceiver(mDateTimeReceiver, dateTimeFilter);
-
-        if (mPrefs.getBoolean("pref_auto_dim", false)) {
-            // read saved lux thresholds
-            String savedLuxThresholdsStr = mPrefs.getString("luxThresholds", Common.DEFAULT_BRIGHTNESS_CURVE);
-
-            if (!savedLuxThresholdsStr.isEmpty()) {
-
-                String[] luxData = savedLuxThresholdsStr.split("\\|");
-                mNumThresholds = luxData.length;
-
-                mLuxLevels = new int[mNumThresholds];
-                mBrightnessLevels = new int[mNumThresholds];
-
-                int i = 0;
-                for (String data : luxData) {
-                    String[] lineData = data.split(":");
-                    mLuxLevels[i] = Integer.valueOf(lineData[0]);
-                    mBrightnessLevels[i++] = Integer.valueOf(lineData[1]);
-                }
-            }
-
-            // set up light sensor
-            mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-            mLightSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
-
-            // set up sensor listener
-            mSensorManager.registerListener(this, mLightSensor, SensorManager.SENSOR_DELAY_NORMAL);
-        }
 
         // register notification listener, if enabled
         if (mPrefs.getBoolean("pref_include_notifications", false)) {
@@ -184,14 +152,16 @@ public class Dream extends DreamService implements SensorEventListener {
         boolean slideAnim = mPrefs.getBoolean("pref_anim_slide", false);
         moveSaverRunnable.registerViews(mContentView, mSaverView, mMaxOpacity, slideAnim);
         mHandler.post(moveSaverRunnable);
+
+        mSaverView.setAlpha(mMaxOpacity);
     }
 
     @Override
     public void onDreamingStopped() {
         super.onDreamingStopped();
 
-        if (mLightSensor != null) {
-            mSensorManager.unregisterListener(this);
+        if (mPrefs.getBoolean("pref_auto_dim", false)) {
+            mBrightnessHelper.unregisterLightSensorListener();
         }
 
         try {
@@ -200,39 +170,6 @@ public class Dream extends DreamService implements SensorEventListener {
         } catch (Exception ignored) {
             // ignored
         }
-    }
-
-
-
-    @Override
-    public void onSensorChanged(SensorEvent sensorEvent) {
-        if(sensorEvent.sensor.getType() == Sensor.TYPE_LIGHT)
-        {
-            float currentLux = sensorEvent.values[0];
-            setScreenBrightness(currentLux);
-        }
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int i) {
-        // ignored
-    }
-
-    private void setScreenBrightness(float currentLux) {
-
-        if (mPrefs.getBoolean("pref_auto_dim", false)) {
-            float brightness = getLevelForLuxValue(currentLux);
-
-            if (mWindow != null) {
-                WindowManager.LayoutParams lp = mWindow.getAttributes();
-                lp.screenBrightness = brightness;
-                mWindow.setAttributes(lp);
-                mWindowManager.updateViewLayout(mWindow.getDecorView(), lp);
-            }
-        }
-
-        // set opacity of the view
-        mSaverView.setAlpha(mMaxOpacity);
     }
 
     private String getFormattedDate(String strDateFormat) {
@@ -330,35 +267,5 @@ public class Dream extends DreamService implements SensorEventListener {
 
     private void updateBatteryDisplay() {
         mChargeDisplay.setText(Utils.getChargingStatus(this));
-    }
-
-    private float getLevelForLuxValue(float value) {
-        int luxValue = (int) value;
-
-        int returnValue = 50; // default value of half screen brightness
-
-        Debug.Log(tag, "getLevelForLuxValue(" + luxValue + ")");
-
-        for (int i = 0; i < mNumThresholds; i++) {
-            int brightnessOffset = i;
-
-            // get the next LOWEST value, if there is one
-            if (i > 0) {
-                brightnessOffset = i - 1;
-            }
-
-            int threshold = mLuxLevels[i];
-            int brightness = mBrightnessLevels[brightnessOffset];
-
-            Debug.Log(tag, String.format("lux %d <= %d? ", luxValue, threshold));
-            if (luxValue <= threshold) {
-                Debug.Log(tag, String.format("Yes. returning %d for lux value %d", brightness, luxValue));
-                returnValue = brightness;
-                break;
-            }
-        }
-
-        Debug.Log(tag, "Reached end.");
-        return returnValue / 100.0f;
     }
 }

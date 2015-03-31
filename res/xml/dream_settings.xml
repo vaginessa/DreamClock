@@ -15,7 +15,7 @@
         android:title="@string/pref_anim_slide_title"
         android:summary="@string/pref_anim_slide_summary" />
 
-    <com.raidzero.dreamclock.SliderPreference
+    <com.raidzero.dreamclock.preferences.SliderPreference
         android:key="pref_max_opacity"
         android:title="@string/pref_max_opacity_title"
         android:summary="@string/pref_max_opacity_summary" />

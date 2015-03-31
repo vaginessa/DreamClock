@@ -1,8 +1,7 @@
-package com.raidzero.dreamclock;
+package com.raidzero.dreamclock.global;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -10,8 +9,9 @@ import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
+
+import com.raidzero.dreamclock.R;
 
 /**
  * Created by posborn on 3/30/15.

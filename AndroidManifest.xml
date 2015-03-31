@@ -4,15 +4,15 @@
     <application android:allowBackup="true" android:label="@string/app_name"
         android:icon="@mipmap/ic_launcher" android:theme="@style/AppTheme">
 
-        <activity android:name=".DreamSettingsActivity"
+        <activity android:name=".activities.DreamSettingsActivity"
             android:label="@string/settings_title"/>
 
-        <activity android:name=".AdjustBrightnessLevelsActivity"
+        <activity android:name=".activities.AdjustBrightnessLevelsActivity"
             android:label="@string/adjust_brightness_title"
             android:theme="@android:style/Theme.Material.Light.Dialog" />
 
         <service
-            android:name=".Dream"
+            android:name=".services.Dream"
             android:exported="true"
             android:icon="@mipmap/ic_launcher"
             android:label="@string/app_name"
@@ -28,7 +28,7 @@
                 android:resource="@xml/dream_clock" />
         </service>
 
-        <service android:name=".NotificationMonitor"
+        <service android:name=".services.NotificationMonitor"
             android:label="@string/app_name"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
             <intent-filter>

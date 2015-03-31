@@ -1,4 +1,4 @@
-package com.raidzero.dreamclock;
+package com.raidzero.dreamclock.activities;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -8,8 +8,11 @@ import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+
+import com.raidzero.dreamclock.global.Debug;
+import com.raidzero.dreamclock.services.NotificationMonitor;
+import com.raidzero.dreamclock.R;
 
 /**
  * Created by posborn on 3/16/15.

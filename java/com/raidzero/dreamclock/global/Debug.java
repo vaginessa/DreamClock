@@ -1,6 +1,8 @@
-package com.raidzero.dreamclock;
+package com.raidzero.dreamclock.global;
 
 import android.util.Log;
+
+import com.raidzero.dreamclock.BuildConfig;
 
 /**
  * Created by posborn on 3/25/15.

@@ -1,4 +1,4 @@
-package com.raidzero.dreamclock;
+package com.raidzero.dreamclock.global;
 
 /**
  * Created by posborn on 3/31/15.

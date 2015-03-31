@@ -1,15 +1,15 @@
-package com.raidzero.dreamclock;
+package com.raidzero.dreamclock.services;
 
 import android.app.Notification;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.os.IBinder;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
+import com.raidzero.dreamclock.global.Debug;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Created by posborn on 3/16/15.

@@ -1,4 +1,4 @@
-package com.raidzero.dreamclock;
+package com.raidzero.dreamclock.global;
 
 import android.animation.Animator;
 import android.animation.AnimatorSet;
@@ -21,6 +21,8 @@ import android.view.View;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.TextView;
+
+import com.raidzero.dreamclock.R;
 
 import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;

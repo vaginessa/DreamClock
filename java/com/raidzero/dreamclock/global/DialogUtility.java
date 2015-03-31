@@ -1,4 +1,4 @@
-package com.raidzero.dreamclock;
+package com.raidzero.dreamclock.global;
 
 import android.app.AlertDialog;
 import android.content.Context;

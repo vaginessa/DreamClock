@@ -1,32 +1,27 @@
-package com.raidzero.dreamclock;
+package com.raidzero.dreamclock.activities;
 
 
-import android.app.ActionBar;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.preference.PreferenceManager;
 import android.text.InputType;
-import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.raidzero.dreamclock.global.Common;
+import com.raidzero.dreamclock.global.Debug;
+import com.raidzero.dreamclock.global.DialogUtility;
+import com.raidzero.dreamclock.R;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Created by posborn on 3/30/15.
