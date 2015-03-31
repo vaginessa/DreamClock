@@ -75,7 +75,14 @@ public class NumberedIconView extends View {
 
         // whole view bounds
         mLeft = 0; mTop = 0;
-        mRight = iconWidth + mCountSize;
+
+        // only adjust right bound if count is going to be displayed
+        if (mCount > 1) {
+            mRight = iconWidth + mCountSize;
+        } else {
+            mRight = iconWidth;
+        }
+
         mBottom = iconHeight + mCountSize - mCountOverlap;
 
         // set drawable bounds
@@ -94,8 +101,10 @@ public class NumberedIconView extends View {
         // draw icon on canvas
         mIcon.draw(canvas);
 
-        // draw text on canvas - to right of icon and just above
-        canvas.drawText(String.valueOf(mCount), mIconBounds.right, mIconBounds.top + mCountOverlap, mPaint);
+        if (mCount > 1) {
+            // draw text on canvas - to right of icon and just above
+            canvas.drawText(String.valueOf(mCount), mIconBounds.right, mIconBounds.top + mCountOverlap, mPaint);
+        }
     }
 
     @Override

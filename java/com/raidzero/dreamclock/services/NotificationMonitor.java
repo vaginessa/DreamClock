@@ -8,6 +8,7 @@ import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
 import com.raidzero.dreamclock.global.Debug;
+import com.raidzero.dreamclock.data.DreamNotification;
 
 import java.util.ArrayList;
 
@@ -17,7 +18,7 @@ import java.util.ArrayList;
 public class NotificationMonitor extends NotificationListenerService {
     private static final String tag = "NotificationMonitor";
 
-    private static ArrayList<StatusBarNotification> mNotifications = new ArrayList<>();
+    private static ArrayList<DreamNotification> mNotifications = new ArrayList<>();
     public static NotificationMonitor instance;
 
     public static NotificationMonitor getInstance() {
@@ -68,14 +69,33 @@ public class NotificationMonitor extends NotificationListenerService {
         StatusBarNotification[] currentNotifications = getActiveNotifications();
 
         if (currentNotifications != null) {
+
             // filter out the non interesting stuff
             for (StatusBarNotification sbn : currentNotifications) {
+
                 Notification notification = sbn.getNotification();
+                String pkgName = sbn.getPackageName();
+                int iconId = notification.icon;
+                int number = notification.number;
+                int flags = notification.flags;
 
                 // higher than min priority and not ongoing
                 if (notification.priority > Notification.PRIORITY_MIN &&
-                        ((Notification.FLAG_ONGOING_EVENT & notification.flags) == 0)) {
-                    mNotifications.add(sbn);
+                        ((Notification.FLAG_ONGOING_EVENT & flags) == 0)) {
+
+                    // only add to list if we don't already have this package name
+                    if (!DreamNotification.contains(mNotifications, pkgName)) {
+
+                        // always 1
+                        if (number == 0) {
+                            number = 1;
+                        }
+
+                        Debug.Log(tag, "notification: " + sbn.getPackageName() + ": " + number);
+
+                        // add filtered notification
+                        mNotifications.add(new DreamNotification(pkgName, iconId, number));
+                    }
                 }
             }
         } else {
@@ -94,7 +114,7 @@ public class NotificationMonitor extends NotificationListenerService {
         }
     }
 
-    public static ArrayList<StatusBarNotification> getCurrentNotifications() {
+    public static ArrayList<DreamNotification> getCurrentNotifications() {
         return mNotifications;
     }
 

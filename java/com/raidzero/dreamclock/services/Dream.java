@@ -1,7 +1,6 @@
 package com.raidzero.dreamclock.services;
 
 import android.app.AlarmManager;
-import android.app.Notification;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -13,13 +12,13 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.service.dreams.DreamService;
-import android.service.notification.StatusBarNotification;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.raidzero.dreamclock.global.BrightnessHelper;
 import com.raidzero.dreamclock.global.Debug;
+import com.raidzero.dreamclock.data.DreamNotification;
 import com.raidzero.dreamclock.global.NumberedIconView;
 import com.raidzero.dreamclock.R;
 import com.raidzero.dreamclock.global.Utils;
@@ -181,71 +180,34 @@ public class Dream extends DreamService {
 
     // adds notification icons with counts to the notification area
     synchronized private void updateNotifications() {
-        ArrayList<StatusBarNotification> notifications = NotificationMonitor.getCurrentNotifications();
+        ArrayList<DreamNotification> notifications = NotificationMonitor.getCurrentNotifications();
+        //NotificationMonitor.clearNotifications();
 
         Debug.Log(tag, "updateNotifications() got stuff: " + notifications.size());
 
         // first, clear out the notification view
         mNotificationContainer.removeAllViews();
 
-        // keep a map of packages and their numbers
-        HashMap<String, Integer> pkgCount = new HashMap<>();
-        ArrayList<String> pkgs = new ArrayList<>();
-
-        // count up notifications for packages
-        for (StatusBarNotification sbn : notifications) {
-            String pkgName = sbn.getPackageName();
-            pkgs.add(pkgName);
-            pkgCount.put(pkgName, countPackages(pkgs, pkgName));
-        }
-
-        // now make compound TextViews with this data and add them to notificationLayout
-        for(Iterator<Map.Entry<String, Integer>> it = pkgCount.entrySet().iterator(); it.hasNext(); ) {
-            Map.Entry<String, Integer> entry = it.next();
-            String pkgName = entry.getKey();
-            int count = entry.getValue();
+        // now make NumberedIconViews with this data and add them to notificationLayout
+        for (DreamNotification notification : notifications) {
+            String pkgName = notification.pkgName;
+            int count = notification.number;
             Debug.Log(tag, String.format("%s: %d", pkgName, count));
 
             try {
                 Context pkgContext = createPackageContext(pkgName, 0);
-                Notification notification = getFirstNotificationForPkgName(notifications, pkgName);
-                if (notification != null) {
-                    int iconId = notification.icon;
-                    Drawable icon = pkgContext.getResources().getDrawable(iconId);
+                Drawable icon = pkgContext.getResources().getDrawable(notification.iconId);
 
-                    // make custom view for superscripted icon! :)
-                    NumberedIconView notifIconView = new NumberedIconView(this);
-                    notifIconView.setIconAndCount(icon, count);
+                // make custom view for superscripted icon! :)
+                NumberedIconView notifIconView = new NumberedIconView(this);
+                notifIconView.setIconAndCount(icon, count);
 
-                    mNotificationContainer.addView(notifIconView);
-                }
+                mNotificationContainer.addView(notifIconView);
+
             } catch (PackageManager.NameNotFoundException e) {
                 //ignore
             }
         }
-    }
-
-    // returns number of occurrences of string in a string array
-    private int countPackages(ArrayList<String> packages, String pkgName) {
-        int count = 0;
-        for (String s : packages) {
-            if (s.equals(pkgName)) {
-                count++;
-            }
-        }
-
-        return count;
-    }
-
-    // returns Notification for first found sbn that matches a given package name
-    private Notification getFirstNotificationForPkgName(ArrayList<StatusBarNotification> sbns, String pkgName) {
-        for (StatusBarNotification sbn : sbns) {
-            if (sbn.getPackageName().equals(pkgName)) {
-                return sbn.getNotification();
-            }
-        }
-
-        return null;
     }
 
     private void updateDateDisplay() {
