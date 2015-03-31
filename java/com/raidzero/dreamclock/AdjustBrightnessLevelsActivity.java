@@ -267,7 +267,7 @@ public class AdjustBrightnessLevelsActivity extends Activity implements View.OnC
         mLuxValues.clear();
         mBrightnessValues.clear();
 
-        String luxStr = mPrefs.getString("luxThresholds", "");
+        String luxStr = mPrefs.getString("luxThresholds", Common.DEFAULT_BRIGHTNESS_CURVE);
 
         if (luxStr.equals("")) {
             return; // nothing to see here

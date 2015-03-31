@@ -55,6 +55,9 @@ public class Dream extends DreamService implements SensorEventListener {
 
     private Handler mHandler = new Handler();
 
+    private int[] mLuxLevels, mBrightnessLevels;
+    private int mNumThresholds;
+
     // receiver for notification updates
     private final BroadcastReceiver mNotificationReceiver = new BroadcastReceiver() {
         @Override
@@ -138,6 +141,25 @@ public class Dream extends DreamService implements SensorEventListener {
         registerReceiver(mDateTimeReceiver, dateTimeFilter);
 
         if (mPrefs.getBoolean("pref_auto_dim", false)) {
+            // read saved lux thresholds
+            String savedLuxThresholdsStr = mPrefs.getString("luxThresholds", Common.DEFAULT_BRIGHTNESS_CURVE);
+
+            if (!savedLuxThresholdsStr.isEmpty()) {
+
+                String[] luxData = savedLuxThresholdsStr.split("\\|");
+                mNumThresholds = luxData.length;
+
+                mLuxLevels = new int[mNumThresholds];
+                mBrightnessLevels = new int[mNumThresholds];
+
+                int i = 0;
+                for (String data : luxData) {
+                    String[] lineData = data.split(":");
+                    mLuxLevels[i] = Integer.valueOf(lineData[0]);
+                    mBrightnessLevels[i++] = Integer.valueOf(lineData[1]);
+                }
+            }
+
             // set up light sensor
             mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
             mLightSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_LIGHT);
@@ -198,22 +220,15 @@ public class Dream extends DreamService implements SensorEventListener {
 
     private void setScreenBrightness(float currentLux) {
 
-        float brightness;
+        if (mPrefs.getBoolean("pref_auto_dim", false)) {
+            float brightness = getLevelForLuxValue(currentLux);
 
-        // TODO: use user-specifiable brightness constraints
-        if (currentLux < 5) {
-            brightness = 0.001f;
-        } else if (currentLux >5 && currentLux < 40) {
-            brightness = 0.5f;
-        } else {
-            brightness = 0.8f;
-        }
-
-        if (mWindow != null) {
-            WindowManager.LayoutParams lp = mWindow.getAttributes();
-            lp.screenBrightness = brightness;
-            mWindow.setAttributes(lp);
-            mWindowManager.updateViewLayout(mWindow.getDecorView(), lp);
+            if (mWindow != null) {
+                WindowManager.LayoutParams lp = mWindow.getAttributes();
+                lp.screenBrightness = brightness;
+                mWindow.setAttributes(lp);
+                mWindowManager.updateViewLayout(mWindow.getDecorView(), lp);
+            }
         }
 
         // set opacity of the view
@@ -315,5 +330,35 @@ public class Dream extends DreamService implements SensorEventListener {
 
     private void updateBatteryDisplay() {
         mChargeDisplay.setText(Utils.getChargingStatus(this));
+    }
+
+    private float getLevelForLuxValue(float value) {
+        int luxValue = (int) value;
+
+        int returnValue = 50; // default value of half screen brightness
+
+        Debug.Log(tag, "getLevelForLuxValue(" + luxValue + ")");
+
+        for (int i = 0; i < mNumThresholds; i++) {
+            int brightnessOffset = i;
+
+            // get the next LOWEST value, if there is one
+            if (i > 0) {
+                brightnessOffset = i - 1;
+            }
+
+            int threshold = mLuxLevels[i];
+            int brightness = mBrightnessLevels[brightnessOffset];
+
+            Debug.Log(tag, String.format("lux %d <= %d? ", luxValue, threshold));
+            if (luxValue <= threshold) {
+                Debug.Log(tag, String.format("Yes. returning %d for lux value %d", brightness, luxValue));
+                returnValue = brightness;
+                break;
+            }
+        }
+
+        Debug.Log(tag, "Reached end.");
+        return returnValue / 100.0f;
     }
 }
