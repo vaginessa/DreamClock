@@ -6,13 +6,16 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
+import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 
 /**
  * Created by posborn on 3/16/15.
  */
 public class DreamSettingsActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+    private static final String tag = "DreamSettingsActivity";
 
     private CheckBoxPreference mNotificationsEnabled;
 
@@ -44,6 +47,18 @@ public class DreamSettingsActivity extends PreferenceActivity implements SharedP
                         .show();
             }
         }
+    }
+
+    @Override
+    public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
+
+        // launch adjust thresholds activity
+        if (preference.getKey().equals("pref_adjust_thresholds")) {
+            Debug.Log(tag, "Adjust thresholds");
+            Intent i = new Intent(this, AdjustBrightnessLevelsActivity.class);
+            startActivity(i);
+        }
+        return super.onPreferenceTreeClick(preferenceScreen, preference);
     }
 
     @Override

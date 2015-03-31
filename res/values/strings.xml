@@ -22,6 +22,11 @@
     <string name="pref_include_notifications_title">Display notifications</string>
     <string name="pref_include_notifications_summary">Show android notifications</string>
 
+    <string name="pref_adjust_brightness_thresholds_title">Adjust brightness thresholds and values</string>
+
     <string name="notification_access_dialog_title">Notification Access disabled</string>
     <string name="notification_access_dialog_message">On the next screen, please enable access for DreamClock, then return here with the back button.</string>
+
+    <string name="adjust_brightness_title">Adjust Brightness Thresholds</string>
+    <string name="adjust_brightness_current_reading">Current Light Sensor Value: </string>
 </resources>

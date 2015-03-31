@@ -6,6 +6,10 @@
         android:title="@string/pref_auto_dim_title"
         android:summary="@string/pref_auto_dim_summary" />
 
+    <Preference
+        android:key="pref_adjust_thresholds"
+        android:title="@string/pref_adjust_brightness_thresholds_title" />
+
     <CheckBoxPreference
         android:key="pref_anim_slide"
         android:title="@string/pref_anim_slide_title"
