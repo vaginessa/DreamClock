@@ -10,14 +10,27 @@
     <string name="battery_charge_method_ac">AC</string>
     <string name="battery_charge_method_wireless">Wireless</string>
 
+    <string name="pref_category_brightess_title">Brightness Settings</string>
+    <string name="pref_static_brightness_title">Screen Brightness</string>
     <string name="pref_auto_dim_title">Auto-dim</string>
     <string name="pref_auto_dim_summary">Automatically dim screen based on light sensor</string>
 
     <string name="pref_anim_slide_title">Slide</string>
     <string name="pref_anim_slide_summary">Slide clock around instead of fading in/out</string>
 
-    <string name="pref_max_opacity_title">Opacity</string>
-    <string name="pref_max_opacity_summary">100% is completely opaque</string>
+    <string name="pref_category_opacity_title">Opacity Settings</string>
+    <string name="pref_opacity_main_title">Variable Opacity</string>
+    <string name="pref_opacity_main_static_summary">Variable opacity will not be used</string>
+    <string name="pref_opacity_main_variable_summary">Variable opacity will be used: %1$d</string>
+
+    <string name="pref_opacity_variable_title">Set Variable Opacity</string>
+    <string name="pref_opacity_variable_summary">
+        Enter an offset to be used to derive opacity from screen brightness. If you want the
+        opacity to follow the screen brightness directly, enter 0.
+    </string>
+
+    <string name="pref_opacity_static_title">Static Opacity</string>
+    <string name="pref_opacity_static_summary">100% is completely opaque</string>
 
     <string name="pref_include_notifications_title">Display notifications</string>
     <string name="pref_include_notifications_summary">Show android notifications</string>
@@ -25,7 +38,10 @@
     <string name="pref_adjust_brightness_thresholds_title">Adjust brightness thresholds and values</string>
 
     <string name="notification_access_dialog_title">Notification Access disabled</string>
-    <string name="notification_access_dialog_message">On the next screen, please enable access for DreamClock, then return here with the back button.</string>
+    <string name="notification_access_dialog_message">
+        On the next screen, please enable access for
+        DreamClock, then return here with the back button.
+    </string>
 
     <string name="adjust_brightness_title">Adjust Brightness Thresholds</string>
     <string name="adjust_brightness_current_reading">Current Light Sensor Value: </string>

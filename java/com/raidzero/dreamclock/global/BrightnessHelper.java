@@ -15,7 +15,7 @@ import android.view.WindowManager;
  * Created by posborn on 3/31/15.
  */
 public class BrightnessHelper implements SensorEventListener {
-    private final String tag = "LuxHelper";
+    private final String tag = "BrightnessHelper";
 
     // class-related fields
     private boolean initialized;
@@ -27,8 +27,16 @@ public class BrightnessHelper implements SensorEventListener {
     private WindowManager mWindowManager;
     private SensorManager mSensorManager;
 
+    private BrightnessCallbacks mCallback;
     // This class is a singleton, so keep an instance
     private static BrightnessHelper instance = null;
+
+    /**
+     * interface for callbacks
+     */
+    public interface BrightnessCallbacks {
+        void onBrightnessChanged(float newBrightness);
+    }
 
     /**
      * protected constructor so only this can instantiate
@@ -56,6 +64,8 @@ public class BrightnessHelper implements SensorEventListener {
      * @param context
      */
     public void setUp(Context context) {
+        mCallback = (BrightnessCallbacks) context;
+
         // dream service
         DreamService dreamService = (DreamService) context;
 
@@ -128,7 +138,7 @@ public class BrightnessHelper implements SensorEventListener {
 
         int returnValue = 50; // default value of half screen brightness
 
-        Debug.Log(tag, "getLevelForLuxValue(" + luxValue + ")");
+        //Debug.Log(tag, "getLevelForLuxValue(" + luxValue + ")");
 
         for (int i = 0; i < mNumThresholds; i++) {
             int brightnessOffset = i;
@@ -141,9 +151,9 @@ public class BrightnessHelper implements SensorEventListener {
             int threshold = mLuxLevels[i];
             int brightness = mBrightnessLevels[brightnessOffset];
 
-            Debug.Log(tag, String.format("lux %d <= %d? ", luxValue, threshold));
+            //Debug.Log(tag, String.format("lux %d <= %d? ", luxValue, threshold));
             if (luxValue <= threshold) {
-                Debug.Log(tag, String.format("Yes. returning %d for lux value %d", brightness, luxValue));
+                //Debug.Log(tag, String.format("Yes. returning %d for lux value %d", brightness, luxValue));
                 returnValue = brightness;
                 break;
             }
@@ -164,7 +174,24 @@ public class BrightnessHelper implements SensorEventListener {
             lp.screenBrightness = brightness;
             mWindow.setAttributes(lp);
             mWindowManager.updateViewLayout(mWindow.getDecorView(), lp);
+
+            mCallback.onBrightnessChanged(brightness);
         }
+    }
+
+    /**
+     * used to set brightness of a given window
+     * @param dreamService dream service instance
+     * @param brightness desired brightness
+     */
+    public static void setScreenBrightness(DreamService dreamService, float brightness) {
+        Window window = dreamService.getWindow();
+        WindowManager.LayoutParams lp = window.getAttributes();
+        lp.screenBrightness = brightness;
+        window.setAttributes(lp);
+
+        WindowManager windowManager = dreamService.getWindowManager();
+        windowManager.updateViewLayout(window.getDecorView(), lp);
     }
 
     /**

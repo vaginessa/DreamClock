@@ -13,6 +13,8 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.service.dreams.DreamService;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -26,14 +28,11 @@ import com.raidzero.dreamclock.global.Utils;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * Created by posborn on 3/16/15.
  */
-public class Dream extends DreamService {
+public class Dream extends DreamService implements BrightnessHelper.BrightnessCallbacks {
     private final static String tag = "Dream";
 
     private NotificationMonitor mNotificationMonitor;
@@ -43,7 +42,7 @@ public class Dream extends DreamService {
 
     private View mContentView, mSaverView;
     private LinearLayout mNotificationContainer;
-    private Float mMaxOpacity;
+    private Float mStaticOpacity;
 
     private Handler mHandler = new Handler();
 
@@ -113,7 +112,7 @@ public class Dream extends DreamService {
         updateDateDisplay();
         updateBatteryDisplay();
 
-        mMaxOpacity = (mPrefs.getInt("pref_max_opacity", 100) / 100.0f);
+        mStaticOpacity = (mPrefs.getInt("pref_static_opacity", 100) / 100.0f);
     }
 
     @Override
@@ -125,6 +124,10 @@ public class Dream extends DreamService {
             // set up lux helper
             mBrightnessHelper = BrightnessHelper.getInstance();
             mBrightnessHelper.setUp(this);
+        } else {
+            //set a static brightness
+            int brightness = mPrefs.getInt("pref_static_brightness", 75);
+            BrightnessHelper.setScreenBrightness(this, brightness / 100.0f);
         }
 
         // register date receiver
@@ -149,10 +152,10 @@ public class Dream extends DreamService {
         // create move runnable and post it now that notifications have possibly been displayed
         Utils.ScreensaverMoveSaverRunnable moveSaverRunnable = new Utils.ScreensaverMoveSaverRunnable(mHandler);
         boolean slideAnim = mPrefs.getBoolean("pref_anim_slide", false);
-        moveSaverRunnable.registerViews(mContentView, mSaverView, mMaxOpacity, slideAnim);
+        moveSaverRunnable.registerViews(mContentView, mSaverView, mStaticOpacity, slideAnim);
         mHandler.post(moveSaverRunnable);
 
-        mSaverView.setAlpha(mMaxOpacity);
+        mSaverView.setAlpha(mStaticOpacity);
     }
 
     @Override
@@ -229,5 +232,15 @@ public class Dream extends DreamService {
 
     private void updateBatteryDisplay() {
         mChargeDisplay.setText(Utils.getChargingStatus(this));
+    }
+
+    @Override
+    public void onBrightnessChanged(float newBrightness) {
+        if (mPrefs.getBoolean("pref_opacity", false)) { // use variable opacity
+            int offset = Integer.valueOf(mPrefs.getString("pref_variable_opacity", "-5"));
+
+            float alpha = (newBrightness + (offset / 100.0f));
+            mSaverView.setAlpha(alpha);
+        }
     }
 }

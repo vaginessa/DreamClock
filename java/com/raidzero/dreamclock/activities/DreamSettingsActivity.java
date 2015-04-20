@@ -6,11 +6,16 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
+import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
+import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 
+import com.raidzero.dreamclock.activities.AdjustBrightnessLevelsActivity;
 import com.raidzero.dreamclock.global.Debug;
+import com.raidzero.dreamclock.preferences.SliderPreference;
 import com.raidzero.dreamclock.services.NotificationMonitor;
 import com.raidzero.dreamclock.R;
 
@@ -20,7 +25,13 @@ import com.raidzero.dreamclock.R;
 public class DreamSettingsActivity extends PreferenceActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String tag = "DreamSettingsActivity";
 
-    private CheckBoxPreference mNotificationsEnabled;
+    private CheckBoxPreference mNotificationsEnabled, mAutoDim, mOpacity;
+    private PreferenceScreen mPrefScreen;
+    private PreferenceCategory mCatOpacity, mCatBrightness;
+    private SharedPreferences mPrefs;
+    private Preference mStaticOpacity, mStaticBrightness; // custom preference
+    private EditTextPreference mVariableOpacity;
+    private Preference mAdjustThresholds; // dummy preference
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -28,7 +39,46 @@ public class DreamSettingsActivity extends PreferenceActivity implements SharedP
         super.onCreate(savedInstanceState);
         addPreferencesFromResource(R.xml.dream_settings);
 
+        mPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        mPrefScreen = (PreferenceScreen) findPreference("pref_screen_main");
+        mCatOpacity = (PreferenceCategory) findPreference("pref_cat_opacity");
+        mCatBrightness = (PreferenceCategory) findPreference("pref_cat_brightness");
+
+        mAutoDim = (CheckBoxPreference) findPreference("pref_auto_dim");
+        mOpacity = (CheckBoxPreference) findPreference("pref_opacity");
+        mAdjustThresholds = findPreference("pref_adjust_thresholds");
+        mVariableOpacity = (EditTextPreference) findPreference("pref_variable_opacity");
+        mStaticOpacity = findPreference("pref_static_opacity");
+        mStaticBrightness = findPreference("pref_static_brightness");
+
         mNotificationsEnabled = (CheckBoxPreference) findPreference("pref_include_notifications");
+
+        int savedOffset = Integer.valueOf(mPrefs.getString("pref_variable_opacity", "-5"));
+
+        // show/hide screen brightness based on whats set
+        if (!mPrefs.getBoolean("pref_auto_dim", false)) { // no auto dimming
+            mCatBrightness.removePreference(mAdjustThresholds);
+            mCatBrightness.addPreference(mStaticBrightness);
+
+            mOpacity.setSummary(getString(R.string.pref_opacity_main_static_summary));
+            mCatOpacity.removePreference(mOpacity);
+            mCatOpacity.removePreference(mVariableOpacity);
+            mCatOpacity.addPreference(mStaticOpacity);
+        } else {
+            mCatBrightness.addPreference(mAdjustThresholds);
+            mCatBrightness.removePreference(mStaticBrightness);
+            mCatOpacity.addPreference(mOpacity);
+        }
+
+        if (mPrefs.getBoolean("pref_opacity", true)) { // true means variable
+            mOpacity.setSummary(
+                    String.format(getString(R.string.pref_opacity_main_variable_summary),
+                            savedOffset));
+            mCatOpacity.removePreference(mStaticOpacity);
+        } else {
+            mOpacity.setSummary(getString(R.string.pref_opacity_main_static_summary));
+            mCatOpacity.removePreference(mVariableOpacity);
+        }
     }
 
     @Override
@@ -48,6 +98,48 @@ public class DreamSettingsActivity extends PreferenceActivity implements SharedP
                             }
                         })
                         .show();
+            }
+        }
+
+        if (key.equals("pref_auto_dim")) {
+            if (!mPrefs.getBoolean(key, false)) { // no auto dimming
+                mCatBrightness.removePreference(mAdjustThresholds);
+                mCatBrightness.addPreference(mStaticBrightness);
+
+                mOpacity.setSummary(getString(R.string.pref_opacity_main_static_summary));
+                mCatOpacity.removePreference(mVariableOpacity);
+                mCatOpacity.removePreference(mOpacity);
+                mCatOpacity.addPreference(mStaticOpacity);
+            } else {
+                mCatBrightness.addPreference(mAdjustThresholds);
+                mCatBrightness.removePreference(mStaticBrightness);
+
+                mCatOpacity.addPreference(mOpacity);
+            }
+        }
+
+        if (key.equals("pref_opacity")) {
+            if (mPrefs.getBoolean(key, false)) { // true means use variable
+                int savedOffset = Integer.valueOf(mPrefs.getString("pref_variable_opacity", "-5"));
+                mOpacity.setSummary(
+                        String.format(getString(R.string.pref_opacity_main_variable_summary),
+                                savedOffset));
+                mCatOpacity.removePreference(mStaticOpacity);
+                mCatOpacity.addPreference(mVariableOpacity);
+            } else {
+                mOpacity.setSummary(getString(R.string.pref_opacity_main_static_summary));
+                mCatOpacity.removePreference(mVariableOpacity);
+                mCatOpacity.addPreference(mStaticOpacity);
+            }
+        }
+
+        // just update the variable opacity summary
+        if (key.equals("pref_variable_opacity")) {
+            if (mPrefs.getBoolean("pref_opacity", false)) { // true means use variable
+                int savedOffset = Integer.valueOf(mPrefs.getString("pref_variable_opacity", "-5"));
+                mOpacity.setSummary(
+                        String.format(getString(R.string.pref_opacity_main_variable_summary),
+                                savedOffset));
             }
         }
     }

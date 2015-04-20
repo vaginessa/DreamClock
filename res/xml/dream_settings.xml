@@ -1,24 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- auto dim -->
-    <CheckBoxPreference
-        android:key="pref_auto_dim"
-        android:title="@string/pref_auto_dim_title"
-        android:summary="@string/pref_auto_dim_summary" />
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:key="pref_screen_main">
 
-    <Preference
-        android:key="pref_adjust_thresholds"
-        android:title="@string/pref_adjust_brightness_thresholds_title" />
+    <PreferenceCategory
+        android:key="pref_cat_brightness"
+        android:title="@string/pref_category_brightess_title" >
+
+        <!-- auto dim -->
+        <CheckBoxPreference
+            android:key="pref_auto_dim"
+            android:title="@string/pref_auto_dim_title"
+            android:summary="@string/pref_auto_dim_summary" />
+
+        <com.raidzero.dreamclock.preferences.SliderPreference
+            android:key="pref_static_brightness"
+            android:title="@string/pref_static_brightness_title" />
+
+        <Preference
+            android:key="pref_adjust_thresholds"
+            android:title="@string/pref_adjust_brightness_thresholds_title" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="pref_cat_opacity"
+        android:title="@string/pref_category_opacity_title">
+
+        <CheckBoxPreference
+            android:key="pref_opacity"
+            android:defaultValue="false"
+            android:title="@string/pref_opacity_main_title"
+            android:summary="@string/pref_opacity_main_static_summary" />
+
+        <com.raidzero.dreamclock.preferences.SliderPreference
+            android:key="pref_static_opacity"
+            android:title="@string/pref_opacity_static_title"
+            android:summary="@string/pref_opacity_static_summary" />
+
+        <EditTextPreference
+            android:key="pref_variable_opacity"
+            android:inputType="numberSigned"
+            android:defaultValue="-5"
+            android:title="@string/pref_opacity_variable_title"
+            android:summary="@string/pref_opacity_variable_summary" />
+
+    </PreferenceCategory>
 
     <CheckBoxPreference
         android:key="pref_anim_slide"
         android:title="@string/pref_anim_slide_title"
         android:summary="@string/pref_anim_slide_summary" />
-
-    <com.raidzero.dreamclock.preferences.SliderPreference
-        android:key="pref_max_opacity"
-        android:title="@string/pref_max_opacity_title"
-        android:summary="@string/pref_max_opacity_summary" />
 
     <CheckBoxPreference
         android:key="pref_include_notifications"
