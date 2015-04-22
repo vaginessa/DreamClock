@@ -13,7 +13,6 @@ import android.preference.PreferenceCategory;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 
-import com.raidzero.dreamclock.activities.AdjustBrightnessLevelsActivity;
 import com.raidzero.dreamclock.services.NotificationMonitor;
 import com.raidzero.dreamclock.R;
 

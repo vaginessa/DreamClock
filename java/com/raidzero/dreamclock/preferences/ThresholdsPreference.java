@@ -86,6 +86,9 @@ public class ThresholdsPreference extends DialogPreference implements
         mAddBtn.setOnClickListener(this);
         mRemoveBtn.setOnClickListener(this);
 
+        // clear out slider maps
+        mBrightnessSeekbars.clear();
+
         // read the thresholds
         mThresholds.clear();
         String prefStr = getPersistedString(Common.DEFAULT_BRIGHTNESS_CURVE);
@@ -226,7 +229,7 @@ public class ThresholdsPreference extends DialogPreference implements
         if (tag.startsWith("brightness")) {
             mBrightmessTextMap.get(seekBar).setText(progress + "%");
 
-            /*
+
             String[] tagData = tag.split(" ");
             int index = Integer.valueOf(tagData[1]);
 
@@ -245,7 +248,7 @@ public class ThresholdsPreference extends DialogPreference implements
                     sb.setProgress(progress);
                 }
             }
-            */
+
 
         } else if (tag.equals("opacity")) {
             mOpacityTextMap.get(seekBar).setText(progress + "%");
