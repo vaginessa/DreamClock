@@ -43,6 +43,8 @@
         DreamClock, then return here with the back button.
     </string>
 
+    <string name="create_threshold_title">Define Threshold:</string>
+
     <string name="adjust_brightness_title">Adjust Brightness Thresholds</string>
     <string name="adjust_brightness_current_reading">Current Light Sensor Value: </string>
 </resources>

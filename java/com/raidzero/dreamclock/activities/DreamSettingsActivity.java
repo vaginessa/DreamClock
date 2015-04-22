@@ -14,8 +14,6 @@ import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 
 import com.raidzero.dreamclock.activities.AdjustBrightnessLevelsActivity;
-import com.raidzero.dreamclock.global.Debug;
-import com.raidzero.dreamclock.preferences.SliderPreference;
 import com.raidzero.dreamclock.services.NotificationMonitor;
 import com.raidzero.dreamclock.R;
 
@@ -27,9 +25,9 @@ public class DreamSettingsActivity extends PreferenceActivity implements SharedP
 
     private CheckBoxPreference mNotificationsEnabled, mAutoDim, mOpacity;
     private PreferenceScreen mPrefScreen;
-    private PreferenceCategory mCatOpacity, mCatBrightness;
+    private PreferenceCategory mCatBrightness;
     private SharedPreferences mPrefs;
-    private Preference mStaticOpacity, mStaticBrightness; // custom preference
+    private Preference mStaticBrightness; // custom preference
     private EditTextPreference mVariableOpacity;
     private Preference mAdjustThresholds; // dummy preference
 
@@ -41,43 +39,23 @@ public class DreamSettingsActivity extends PreferenceActivity implements SharedP
 
         mPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         mPrefScreen = (PreferenceScreen) findPreference("pref_screen_main");
-        mCatOpacity = (PreferenceCategory) findPreference("pref_cat_opacity");
         mCatBrightness = (PreferenceCategory) findPreference("pref_cat_brightness");
 
         mAutoDim = (CheckBoxPreference) findPreference("pref_auto_dim");
         mOpacity = (CheckBoxPreference) findPreference("pref_opacity");
-        mAdjustThresholds = findPreference("pref_adjust_thresholds");
+        mAdjustThresholds = findPreference("pref_saved_thresholds");
         mVariableOpacity = (EditTextPreference) findPreference("pref_variable_opacity");
-        mStaticOpacity = findPreference("pref_static_opacity");
         mStaticBrightness = findPreference("pref_static_brightness");
 
         mNotificationsEnabled = (CheckBoxPreference) findPreference("pref_include_notifications");
-
-        int savedOffset = Integer.valueOf(mPrefs.getString("pref_variable_opacity", "-5"));
 
         // show/hide screen brightness based on whats set
         if (!mPrefs.getBoolean("pref_auto_dim", false)) { // no auto dimming
             mCatBrightness.removePreference(mAdjustThresholds);
             mCatBrightness.addPreference(mStaticBrightness);
-
-            mOpacity.setSummary(getString(R.string.pref_opacity_main_static_summary));
-            mCatOpacity.removePreference(mOpacity);
-            mCatOpacity.removePreference(mVariableOpacity);
-            mCatOpacity.addPreference(mStaticOpacity);
         } else {
             mCatBrightness.addPreference(mAdjustThresholds);
             mCatBrightness.removePreference(mStaticBrightness);
-            mCatOpacity.addPreference(mOpacity);
-        }
-
-        if (mPrefs.getBoolean("pref_opacity", true)) { // true means variable
-            mOpacity.setSummary(
-                    String.format(getString(R.string.pref_opacity_main_variable_summary),
-                            savedOffset));
-            mCatOpacity.removePreference(mStaticOpacity);
-        } else {
-            mOpacity.setSummary(getString(R.string.pref_opacity_main_static_summary));
-            mCatOpacity.removePreference(mVariableOpacity);
         }
     }
 
@@ -105,31 +83,9 @@ public class DreamSettingsActivity extends PreferenceActivity implements SharedP
             if (!mPrefs.getBoolean(key, false)) { // no auto dimming
                 mCatBrightness.removePreference(mAdjustThresholds);
                 mCatBrightness.addPreference(mStaticBrightness);
-
-                mOpacity.setSummary(getString(R.string.pref_opacity_main_static_summary));
-                mCatOpacity.removePreference(mVariableOpacity);
-                mCatOpacity.removePreference(mOpacity);
-                mCatOpacity.addPreference(mStaticOpacity);
             } else {
                 mCatBrightness.addPreference(mAdjustThresholds);
                 mCatBrightness.removePreference(mStaticBrightness);
-
-                mCatOpacity.addPreference(mOpacity);
-            }
-        }
-
-        if (key.equals("pref_opacity")) {
-            if (mPrefs.getBoolean(key, false)) { // true means use variable
-                int savedOffset = Integer.valueOf(mPrefs.getString("pref_variable_opacity", "-5"));
-                mOpacity.setSummary(
-                        String.format(getString(R.string.pref_opacity_main_variable_summary),
-                                savedOffset));
-                mCatOpacity.removePreference(mStaticOpacity);
-                mCatOpacity.addPreference(mVariableOpacity);
-            } else {
-                mOpacity.setSummary(getString(R.string.pref_opacity_main_static_summary));
-                mCatOpacity.removePreference(mVariableOpacity);
-                mCatOpacity.addPreference(mStaticOpacity);
             }
         }
 
@@ -144,17 +100,18 @@ public class DreamSettingsActivity extends PreferenceActivity implements SharedP
         }
     }
 
+    /*
     @Override
     public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
 
         // launch adjust thresholds activity
-        if (preference.getKey().equals("pref_adjust_thresholds")) {
+        if (preference.getKey().equals("pref_saved_thresholds")) {
             Debug.Log(tag, "Adjust thresholds");
             Intent i = new Intent(this, AdjustBrightnessLevelsActivity.class);
             startActivity(i);
         }
         return super.onPreferenceTreeClick(preferenceScreen, preference);
-    }
+    }*/
 
     @Override
     public void onResume() {

@@ -1,4 +1,4 @@
-package com.raidzero.dreamclock.global;
+package com.raidzero.dreamclock.views;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -12,6 +12,8 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.raidzero.dreamclock.R;
+import com.raidzero.dreamclock.global.Debug;
+import com.raidzero.dreamclock.global.Utils;
 
 /**
  * Created by posborn on 3/30/15.

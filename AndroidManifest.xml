@@ -7,10 +7,6 @@
         <activity android:name=".activities.DreamSettingsActivity"
             android:label="@string/settings_title"/>
 
-        <activity android:name=".activities.AdjustBrightnessLevelsActivity"
-            android:label="@string/adjust_brightness_title"
-            android:theme="@android:style/Theme.Material.Light.Dialog" />
-
         <service
             android:name=".services.Dream"
             android:exported="true"

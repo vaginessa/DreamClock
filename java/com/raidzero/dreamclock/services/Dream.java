@@ -13,15 +13,15 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.service.dreams.DreamService;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.raidzero.dreamclock.data.Threshold;
 import com.raidzero.dreamclock.global.BrightnessHelper;
+import com.raidzero.dreamclock.global.Common;
 import com.raidzero.dreamclock.global.Debug;
 import com.raidzero.dreamclock.data.DreamNotification;
-import com.raidzero.dreamclock.global.NumberedIconView;
+import com.raidzero.dreamclock.views.NumberedIconView;
 import com.raidzero.dreamclock.R;
 import com.raidzero.dreamclock.global.Utils;
 
@@ -235,12 +235,7 @@ public class Dream extends DreamService implements BrightnessHelper.BrightnessCa
     }
 
     @Override
-    public void onBrightnessChanged(float newBrightness) {
-        if (mPrefs.getBoolean("pref_opacity", false)) { // use variable opacity
-            int offset = Integer.valueOf(mPrefs.getString("pref_variable_opacity", "-5"));
-
-            float alpha = (newBrightness + (offset / 100.0f));
-            mSaverView.setAlpha(alpha);
-        }
+    public void onBrightnessChanged(float newAlpha) {
+        mSaverView.setAlpha(newAlpha);
     }
 }

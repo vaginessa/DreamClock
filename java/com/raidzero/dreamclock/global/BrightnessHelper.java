@@ -11,6 +11,10 @@ import android.service.dreams.DreamService;
 import android.view.Window;
 import android.view.WindowManager;
 
+import com.raidzero.dreamclock.data.Threshold;
+
+import java.util.ArrayList;
+
 /**
  * Created by posborn on 3/31/15.
  */
@@ -19,8 +23,7 @@ public class BrightnessHelper implements SensorEventListener {
 
     // class-related fields
     private boolean initialized;
-    private int[] mLuxLevels, mBrightnessLevels;
-    private int mNumThresholds;
+    private ArrayList<Threshold> mThresholds = new ArrayList<>();
 
     private SharedPreferences mPrefs;
     private Window mWindow;
@@ -108,21 +111,23 @@ public class BrightnessHelper implements SensorEventListener {
      */
     private void readSavedLuxThresholds() {
         // read saved lux thresholds
-        String savedLuxThresholdsStr = mPrefs.getString("luxThresholds", Common.DEFAULT_BRIGHTNESS_CURVE);
+        String savedLuxThresholdsStr = mPrefs.getString("pref_saved_thresholds", Common.DEFAULT_BRIGHTNESS_CURVE);
+        mThresholds.clear();
+
+        Debug.Log(tag, "savedThresholdStr: " + savedLuxThresholdsStr);
 
         if (!savedLuxThresholdsStr.isEmpty()) {
 
             String[] luxData = savedLuxThresholdsStr.split("\\|");
-            mNumThresholds = luxData.length;
 
-            mLuxLevels = new int[mNumThresholds];
-            mBrightnessLevels = new int[mNumThresholds];
-
-            int i = 0;
             for (String data : luxData) {
                 String[] lineData = data.split(":");
-                mLuxLevels[i] = Integer.valueOf(lineData[0]);
-                mBrightnessLevels[i++] = Integer.valueOf(lineData[1]);
+
+                mThresholds.add(new Threshold(
+                        Integer.valueOf(lineData[0]),
+                        Integer.valueOf(lineData[1]),
+                        Integer.valueOf(lineData[2])
+                ));
             }
         }
     }
@@ -133,14 +138,24 @@ public class BrightnessHelper implements SensorEventListener {
      * @param value lux value
      * @return float resolved brightness value
      */
-    private float getLevelForLuxValue(float value) {
+    private int[] getLevelForLuxValue(float value) {
         int luxValue = (int) value;
 
-        int returnValue = 50; // default value of half screen brightness
+        int[] rtnData = new int[2]; // default value of half screen brightness
 
-        //Debug.Log(tag, "getLevelForLuxValue(" + luxValue + ")");
+        int[] luxLevels = new int[mThresholds.size()];
+        int[] brightnessLevels = new int[mThresholds.size()];
+        int[] opacityLevels = new int[mThresholds.size()];
 
-        for (int i = 0; i < mNumThresholds; i++) {
+        for (int i = 0; i < mThresholds.size(); i++) {
+            Threshold t = mThresholds.get(i);
+
+            luxLevels[i] = t.lux();
+            brightnessLevels[i] = t.brightness();
+            opacityLevels[i] = t.opacity();
+        }
+
+        for (int i = 0; i < mThresholds.size(); i++) {
             int brightnessOffset = i;
 
             // get the next LOWEST value, if there is one
@@ -148,18 +163,19 @@ public class BrightnessHelper implements SensorEventListener {
                 brightnessOffset = i - 1;
             }
 
-            int threshold = mLuxLevels[i];
-            int brightness = mBrightnessLevels[brightnessOffset];
+            int threshold = luxLevels[i];
+            int brightness = brightnessLevels[brightnessOffset];
+            int opacity = opacityLevels[brightnessOffset];
 
-            //Debug.Log(tag, String.format("lux %d <= %d? ", luxValue, threshold));
+            rtnData[0] = brightness;
+            rtnData[1] = opacity;
+
             if (luxValue <= threshold) {
-                //Debug.Log(tag, String.format("Yes. returning %d for lux value %d", brightness, luxValue));
-                returnValue = brightness;
-                break;
+                return rtnData;
             }
         }
 
-        return returnValue / 100.0f;
+        return rtnData;
     }
 
     /**
@@ -168,14 +184,17 @@ public class BrightnessHelper implements SensorEventListener {
      */
     private void setScreenBrightness(float currentLux) {
         if (initialized) {
-            float brightness = getLevelForLuxValue(currentLux);
+            int[] levelData = getLevelForLuxValue(currentLux);
+            float brightness = levelData[0] / 100.0f;
+            float opacity = levelData[1] / 100.0f;
 
+            Debug.Log(tag, String.format("brightness: %f, opacity: %f", brightness, opacity));
             WindowManager.LayoutParams lp = mWindow.getAttributes();
             lp.screenBrightness = brightness;
             mWindow.setAttributes(lp);
             mWindowManager.updateViewLayout(mWindow.getDecorView(), lp);
 
-            mCallback.onBrightnessChanged(brightness);
+            mCallback.onBrightnessChanged(opacity);
         }
     }
 
